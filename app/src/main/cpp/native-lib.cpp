@@ -4,8 +4,17 @@
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_ldh_android_tinkerdemo_MainActivity_stringFromJNI(
-        JNIEnv* env,
+        JNIEnv *env,
         jobject /* this */) {
-    std::string hello = "Hello from C++";
+    std::string hello = "Hello from C++\n";
+    return env->NewStringUTF(hello.c_str());
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_ldh_android_tinkerdemo_MainActivity_hello(
+        JNIEnv *env,
+        jobject /* this */) {
+    std::string hello = "Stay foolish,stay hungery!";
     return env->NewStringUTF(hello.c_str());
 }
