@@ -1,13 +1,19 @@
 package com.ldh.android.tinkerdemo;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -18,10 +24,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.ldh.android.tinkerdemo.log.BaseBuildInfo;
 import com.ldh.android.tinkerdemo.log.BuildInfo;
+import com.ldh.android.tinkerdemo.util.AppContextUtil;
+import com.tencent.tinker.lib.library.TinkerLoadLibrary;
 import com.tencent.tinker.lib.tinker.Tinker;
 import com.tencent.tinker.lib.tinker.TinkerInstaller;
 import com.tencent.tinker.loader.shareutil.ShareConstants;
@@ -29,6 +36,7 @@ import com.tencent.tinker.loader.shareutil.ShareTinkerInternals;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "Tinker.MainActivity";
+    private TextView tv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,18 +55,21 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onClick(View view) {
 //                                Toast.makeText(MainActivity.this,"hello world",Toast.LENGTH_SHORT).show();
+                                TinkerLoadLibrary.loadArmLibrary(getApplicationContext(), "native-lib");
+                                TextView tv = (TextView) findViewById(R.id.sample_text);
+                                tv.setText("hi tinker\n" + stringFromJNI() + hello());
                             }
                         })
                         .addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
 
                             @Override
                             public void onShown(Snackbar transientBottomBar) {
-                                Toast.makeText(MainActivity.this, "hello onShown", Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(MainActivity.this, "hello onShown", Toast.LENGTH_SHORT).show();
                             }
 
                             @Override
                             public void onDismissed(Snackbar transientBottomBar, int event) {
-                                Toast.makeText(MainActivity.this, "hello onDismissed", Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(MainActivity.this, "hello onDismissed", Toast.LENGTH_SHORT).show();
                             }
                         })
                         .show();
@@ -66,8 +77,25 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Example of a call to a native method
-        TextView tv = (TextView) findViewById(R.id.sample_text);
+        tv = (TextView) findViewById(R.id.sample_text);
         tv.setText(stringFromJNI() + hello());
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String[] permissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.CALL_PHONE};
+//        checkSelfPermission(permissions[0])
+        boolean hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        if (!hasPermission) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, permissions[0])) {
+                Snackbar.make(tv, "前往设置打开权限", Snackbar.LENGTH_LONG).setAction("action", null).show();
+            } else {
+                ActivityCompat.requestPermissions(this, permissions, 0x10);
+            }
+        }
     }
 
     private void initTinkerEvent() {
@@ -124,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
         v.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 10);
         v.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         v.setTextColor(0xFF000000);
-        v.setTypeface(Typeface.MONOSPACE);
+        v.setTypeface(Typeface.MONOSPACE); //Monospace n. 单一间隔；划一字距，等宽字体
         final int padding = 16;
         v.setPadding(padding, padding, padding, padding);
 
@@ -169,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Used to load the 'native-lib' library on application startup.
     static {
-        System.loadLibrary("native-lib");
+//        System.loadLibrary("native-lib");
+        TinkerLoadLibrary.loadArmLibrary(AppContextUtil.context, "native-lib");
     }
 }
