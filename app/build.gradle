@@ -1,19 +1,26 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+repositories {
+    mavenCentral()
+}
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:26.+'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.android.support:design:26.+'
-    compile "com.android.support:multidex:1.0.1"
-    testCompile 'junit:junit:4.12'
     //可选，用于生成application类
     provided "com.tencent.tinker:tinker-android-anno:${TINKER_VERSION}"
     //tinker的核心库
     compile "com.tencent.tinker:tinker-android-lib:${TINKER_VERSION}"
+    compile 'com.android.support:appcompat-v7:26.+'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.android.support:design:26.+'
+    compile 'com.android.support:multidex:1.0.1'
+    compile 'com.android.support:support-vector-drawable:26.+'
+    testCompile 'junit:junit:4.12'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 }
 
 // 指定JDK版本
@@ -61,7 +68,6 @@ android {
             }
         }
 
-
         /**
          * you can use multiDex and install it in your ApplicationLifeCycle implement
          */
@@ -79,6 +85,7 @@ android {
          */
         buildConfigField "String", "TINKER_ID", "\"${getTinkerIdValue()}\""
         buildConfigField "String", "PLATFORM", "\"all\""
+        vectorDrawables.useSupportLibrary = true
     }
 
     signingConfigs {
@@ -133,6 +140,7 @@ android {
     sourceSets {
         main {
             jniLibs.srcDirs = ['libs']
+//            java.srcDirs += 'src/main/kotlin'
         }
     }
 
@@ -149,7 +157,7 @@ ext {
     //for some reason, you may want to ignore tinkerBuild, such as instant run debug build?
     tinkerEnabled = true
 
-    dateflag= "app-debug-1011-16-13-20"
+    dateflag = "app-debug-1023-15-57-31"
     //for normal build
     //old apk file to build patch apk
     tinkerOldApkPath = "${bakPath}/${dateflag}.apk"
@@ -159,7 +167,7 @@ ext {
     tinkerApplyResourcePath = "${bakPath}/${dateflag}-R.txt"
 
     //only use for build all flavor, if not, just ignore this field
-    tinkerBuildFlavorDirectory = "${bakPath}/app-1011-16-13-20"
+    tinkerBuildFlavorDirectory = "${bakPath}/app-1023-15-57-31"
 }
 
 def getOldApkPath() {
@@ -383,7 +391,7 @@ if (buildWithTinker()) {
     }
 
     List<String> flavors = new ArrayList<>();
-    project.android.productFlavors.each {flavor ->
+    project.android.productFlavors.each { flavor ->
         flavors.add(flavor.name)
     }
     boolean hasFlavors = flavors.size() > 0

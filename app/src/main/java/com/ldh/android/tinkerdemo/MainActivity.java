@@ -3,6 +3,7 @@ package com.ldh.android.tinkerdemo;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.os.Build;
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         initTinkerEvent();
 
@@ -54,10 +55,8 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-//                                Toast.makeText(MainActivity.this,"hello world",Toast.LENGTH_SHORT).show();
-                                TinkerLoadLibrary.loadArmLibrary(getApplicationContext(), "native-lib");
-                                TextView tv = (TextView) findViewById(R.id.sample_text);
-                                tv.setText("hi tinker\n" + stringFromJNI() + hello());
+                                Intent intent = new Intent(MainActivity.this, NavigationActivity.class);
+                                startActivity(intent);
                             }
                         })
                         .addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
