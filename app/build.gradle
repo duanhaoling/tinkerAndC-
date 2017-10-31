@@ -146,6 +146,7 @@ android {
 
 }
 
+def getNewFileNamePrefix = ""
 def bakPath = file("${buildDir}/bakApk/")
 
 /**
@@ -432,6 +433,8 @@ if (buildWithTinker()) {
                         rename { String fileName ->
                             fileName.replace("R.txt", "${newFileNamePrefix}-R.txt")
                         }
+
+                        getNewFileNamePrefix = "${newFileNamePrefix}"
                     }
                 }
             }
@@ -476,4 +479,45 @@ if (buildWithTinker()) {
             }
         }
     }
+
+    task AppDebugStart(type: Exec, dependsOn: 'installDebug') {
+        def packageName = 'tinker.sample.android'
+        commandLine "adb", "shell", "am", "start", "-n",
+                "$packageName/.app.MainActivity"
+
+        doLast {
+            println getNewFileNamePrefix
+
+            List<String> list = project.getBuildFile().readLines("utf-8");
+
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).contains("tinkerOldApkPath = \"\${bakPath}/")) {
+                    list.set(i, "tinkerOldApkPath = \"\${bakPath}/${getNewFileNamePrefix}.apk\"")
+                }
+
+                if (list.get(i).contains("tinkerApplyMappingPath = \"\${bakPath}/")) {
+                    list.set(i, "tinkerApplyMappingPath = \"\${bakPath}/${getNewFileNamePrefix}-mapping.txt\"")
+                }
+
+                if (list.get(i).contains("tinkerApplyResourcePath = \"\${bakPath}/")) {
+                    list.set(i, "tinkerApplyResourcePath = \"\${bakPath}/${getNewFileNamePrefix}-R.txt\"")
+                }
+
+                if (list.get(i).contains("tinkerBuildFlavorDirectory = \"\${bakPath}/")) {
+                    list.set(i, "tinkerBuildFlavorDirectory = \"\${bakPath}/${getNewFileNamePrefix}\"")
+                }
+            }
+
+            project.getBuildFile().write("")
+
+            for (int i = 0; i < list.size(); i++) {
+                project.getBuildFile().append(list.get(i) + "\n", "utf-8")
+            }
+        }
+    }
+//    /Users/ldh/workspace/tinkerdemo/app/build/outputs/tinkerPatch/debug/patch_signed_7zip.apk
+    task AppDebugTinkerPatchPush(type: Exec, dependsOn: 'tinkerPatchDebug') {
+        commandLine "adb", "push", "/Users/ldh/workspace/tinkerdemo/app/build/outputs/tinkerPatch/debug/patch_signed_7zip.apk", "/mnt/sdcard/"
+    }
+
 }
