@@ -158,7 +158,7 @@ ext {
     //for some reason, you may want to ignore tinkerBuild, such as instant run debug build?
     tinkerEnabled = true
 
-    dateflag = "app-debug-1023-15-57-31"
+    dateflag = "app-debug-1102-15-31-09"
     //for normal build
     //old apk file to build patch apk
     tinkerOldApkPath = "${bakPath}/${dateflag}.apk"

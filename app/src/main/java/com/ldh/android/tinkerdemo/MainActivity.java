@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ldh.android.tinkerdemo.log.BaseBuildInfo;
 import com.ldh.android.tinkerdemo.log.BuildInfo;
@@ -63,12 +64,12 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public void onShown(Snackbar transientBottomBar) {
-//                                Toast.makeText(MainActivity.this, "hello onShown", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "hi onShown", Toast.LENGTH_SHORT).show();
                             }
 
                             @Override
                             public void onDismissed(Snackbar transientBottomBar, int event) {
-//                                Toast.makeText(MainActivity.this, "hello onDismissed", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "hi onDismissed", Toast.LENGTH_SHORT).show();
                             }
                         })
                         .show();
